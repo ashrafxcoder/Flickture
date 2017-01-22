@@ -19,11 +19,12 @@ import com.ashrafcoder.flickture.flickr.FlickrFetchr;
 public class ThumbnailDownloader<Handle> extends HandlerThread {
     private static final String TAG = ThumbnailDownloader.class.getName();
     private static final int MESSAGE_DOWNLOAD = 0;
-    
-    Handler mHandler;
-    Map<Handle,String> requestMap = Collections.synchronizedMap(new HashMap<Handle,String>());
-    Handler mResponseHandler;
-    Listener<Handle> mListener;
+
+    private Handler mHandler;
+    private Map<Handle,String> requestMap = Collections.synchronizedMap(new HashMap<Handle,String>());
+    private Handler mResponseHandler;
+    private Listener<Handle> mListener;
+    //LruCache added to increase the performance and decrease network bandwidth
     private LruCache<String, Bitmap> mMemoryCache;
 
     // Get max available VM memory, exceeding this amount will throw an
