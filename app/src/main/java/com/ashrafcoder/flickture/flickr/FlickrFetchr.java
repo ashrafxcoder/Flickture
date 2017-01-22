@@ -29,7 +29,6 @@ public class FlickrFetchr {
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
     private static final String PARAM_EXTRAS = "extras";
     private static final String EXTRA_SMALL_URL = "url_s";
-
     private static final String XML_PHOTO = "photo";
 
 
@@ -110,4 +109,25 @@ public class FlickrFetchr {
             eventType = parser.next();
         }
     }
+
+
+
+    public ArrayList<GalleryItem> downloadGalleryItems(String url) {
+        ArrayList<GalleryItem> items = new ArrayList<GalleryItem>();
+        try {
+            String xmlString = getUrl(url);
+            Log.i(TAG, "Received xml: " + xmlString);
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new StringReader(xmlString));
+            parseItems(items, parser);
+        } catch (IOException ioe) {
+            Log.e(TAG, "Failed to fetch items", ioe);
+        } catch (XmlPullParserException xppe) {
+            Log.e(TAG, "Failed to parse items", xppe);
+        }
+        return items;
+    }
+
+
 }
