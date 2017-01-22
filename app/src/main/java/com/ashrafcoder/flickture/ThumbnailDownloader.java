@@ -16,14 +16,14 @@ import android.util.Log;
 
 import com.ashrafcoder.flickture.flickr.FlickrFetchr;
 
-public class ThumbnailDownloader<Handle> extends HandlerThread {
+public class ThumbnailDownloader<T> extends HandlerThread {
     private static final String TAG = ThumbnailDownloader.class.getName();
     private static final int MESSAGE_DOWNLOAD = 0;
 
     private Handler mHandler;
-    private Map<Handle,String> requestMap = Collections.synchronizedMap(new HashMap<Handle,String>());
+    private Map<T,String> requestMap = Collections.synchronizedMap(new HashMap<T,String>());
     private Handler mResponseHandler;
-    private Listener<Handle> mListener;
+    private Listener<T> mListener;
     //LruCache added to increase the performance and decrease network bandwidth
     private LruCache<String, Bitmap> mMemoryCache;
 
@@ -41,7 +41,7 @@ public class ThumbnailDownloader<Handle> extends HandlerThread {
         void onThumbnailDownloaded(Handle handle, Bitmap thumbnail);
     }
     
-    public void setListener(Listener<Handle> listener) {
+    public void setListener(Listener<T> listener) {
         mListener = listener;
     }
 
@@ -67,7 +67,7 @@ public class ThumbnailDownloader<Handle> extends HandlerThread {
             public void handleMessage(Message msg) {
                 if (msg.what == MESSAGE_DOWNLOAD) {
                     @SuppressWarnings("unchecked")
-                    Handle handle = (Handle)msg.obj;
+                    T handle = (T)msg.obj;
                     Log.i(TAG, "Got a request for url: " + requestMap.get(handle));
                     handleRequest(handle);
                 }
@@ -75,7 +75,7 @@ public class ThumbnailDownloader<Handle> extends HandlerThread {
         };
     }
 
-    private void handleRequest(final Handle handle) {
+    private void handleRequest(final T handle) {
         try {
             final String url = requestMap.get(handle);
             if (url == null) 
@@ -99,7 +99,7 @@ public class ThumbnailDownloader<Handle> extends HandlerThread {
         }
     }
 
-    private void postResult(final Handle handle, final String url, final Bitmap bitmap) {
+    private void postResult(final T handle, final String url, final Bitmap bitmap) {
         mResponseHandler.post(new Runnable() {
             public void run() {
                 if (requestMap.get(handle) != url)
@@ -111,7 +111,7 @@ public class ThumbnailDownloader<Handle> extends HandlerThread {
         });
     }
 
-    public void queueThumbnail(Handle handle, String url) {
+    public void queueThumbnail(T handle, String url) {
         requestMap.put(handle, url);
         
         mHandler
